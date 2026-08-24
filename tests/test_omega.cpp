@@ -94,6 +94,10 @@ static void test_bind_unbind_roundtrip() {
 }
 
 static void test_bdd_memory() {
+    static_assert(BddMemory::DEFAULT_THRESHOLD == 24);
+    static_assert(N_WORDS == 32u);
+    static_assert(CHUNK_WORD_OFF[0] == 0u && CHUNK_WORD_OFF[1] == 10u &&
+                  CHUNK_WORD_OFF[2] == 21u && CHUNK_WORD_OFF[3] == 32u);
     BddMemory mem(64);
     for (uint64_t s = 500; s < 550; ++s) assert(mem.store(s));
     assert(!mem.store(501));
@@ -101,12 +105,23 @@ static void test_bdd_memory() {
     uint64_t out = 0;
     unsigned hits = 0;
     for (uint64_t s = 500; s < 550; ++s) {
+        Rng br(item_seed(s));
+        Code base = encode(s, br);
         for (unsigned t = 0; t < BddMemory::BRANCHES; ++t) {
-            Rng br(branch_seed(s, t));
-            Code q = encode(s, br);
-            bool ok = mem.recall(q, out);
+            Code q;
+            if (t == 0) {
+                Rng br2(item_seed(s));
+                q = encode(s, br2);
+                assert(code_eq(q, base));
+            } else {
+                q.pos = base.pos;
+                q.neg = base.neg;
+            }
+            bool ok = mem.recall_pooled(q, out);
             assert(ok);
             assert(out == s);
+            bool ok2 = mem.recall(q, out);
+            assert(ok2 && out == s);
             ++hits;
         }
     }
@@ -123,11 +138,145 @@ static void test_bdd_memory() {
     BddMemory::Stats st = mem.stats();
     assert(st.capacity == 64u);
     assert(st.slots_used == 50u);
-    assert(st.recalls == 151u);
-    assert(st.hits == 150u);
+    assert(st.recalls == 301u);
+    assert(st.hits == 300u);
     assert(st.misses == 1u);
     assert(st.threshold == 24);
-    printf("BDD memory store/recall/stats/counters: OK (noiseless 150/150)\n");
+    printf("BDD memory store/recall_pooled/stats/counters: OK "
+           "(noiseless 150/150)\n");
+}
+
+static int32_t brute_sim_range(const Code& x, const Code& y, unsigned b0,
+                               unsigned b1) {
+    int32_t s = 0;
+    for (unsigned i = b0; i < b1; ++i) {
+        int vx = (x.pos.test(i) ? 1 : 0) - (x.neg.test(i) ? 1 : 0);
+        int vy = (y.pos.test(i) ? 1 : 0) - (y.neg.test(i) ? 1 : 0);
+        s += vx * vy;
+    }
+    return s;
+}
+
+static void test_chunk_isolation() {
+    Rng rng(20260824ull);
+    for (unsigned trial = 0; trial < 100; ++trial) {
+        Code a = encode(trial * 2ull + 300000ull, rng);
+        Code b = encode(trial * 2ull + 300001ull, rng);
+        int32_t whole = static_cast<int32_t>(sim(a, b));
+        int32_t parts = 0;
+        int32_t clamped = 0;
+        for (unsigned t = 0; t < CHUNK_COUNT; ++t) {
+            unsigned w0 = chunk_word_begin(t);
+            unsigned w1 = chunk_word_end(t);
+            int32_t v = sim_chunk(a, b, w0, w1);
+            int32_t brute =
+                brute_sim_range(a, b, w0 << 6, w1 << 6);
+            assert(v == brute);
+            parts += v;
+            clamped += (v > 0) ? v : 0;
+        }
+        assert(whole == parts);
+        assert(pooled_sim(a, b) == clamped);
+        Code z;
+        assert(pooled_sim(z, a) == 0);
+    }
+
+    Code c;
+    c.pos.set(7);
+    c.pos.set(63);
+    c.neg.set(64);
+    c.neg.set(120);
+    c.pos.set(641);
+    c.pos.set(700);
+    c.neg.set(703);
+    c.pos.set(1344);
+    c.pos.set(1400);
+    c.neg.set(2047);
+
+    Code qflip;
+    qflip.pos = c.pos;
+    qflip.neg = c.neg;
+    for (unsigned i = 0; i < 640u; ++i) {
+        bool p = qflip.pos.test(i);
+        bool n = qflip.neg.test(i);
+        if (p != n) {
+            if (p) {
+                qflip.pos.clear(i);
+                qflip.neg.set(i);
+            } else {
+                qflip.neg.clear(i);
+                qflip.pos.set(i);
+            }
+        }
+    }
+    assert(sim_chunk(qflip, c, 0, 10) ==
+           brute_sim_range(qflip, c, 0, 640));
+    assert(sim_chunk(qflip, c, 0, 10) == -4);
+    assert(sim_chunk(qflip, c, 10, 21) == 3);
+    assert(sim_chunk(qflip, c, 21, 32) == 3);
+    assert(pooled_sim(qflip, c) == 6);
+    assert(sim_chunk(qflip, c, 0, 32) == 2);
+    assert(pooled_sim(qflip, c) >
+           sim_chunk(qflip, c, 0, 32));
+
+    Code qclip0;
+    qclip0.pos = c.pos;
+    qclip0.neg = c.neg;
+    for (unsigned i = 0; i < 640u; ++i) {
+        qclip0.pos.clear(i);
+        qclip0.neg.clear(i);
+    }
+    assert(pooled_sim(qclip0, c) == 6);
+
+    Code qview1;
+    for (unsigned i = 640u; i < 1344u; ++i) {
+        if (c.pos.test(i)) qview1.pos.set(i);
+        if (c.neg.test(i)) qview1.neg.set(i);
+    }
+    assert(pooled_sim(qview1, c) == 3);
+    assert(sim_chunk(qview1, c, 0, 10) == 0);
+    assert(sim_chunk(qview1, c, 21, 32) == 0);
+
+    BddMemory m2(8);
+    std::vector<Code> bases;
+    for (uint64_t s = 11; s <= 13; ++s) {
+        assert(m2.store(s));
+        Rng br(item_seed(s));
+        bases.push_back(encode(s, br));
+    }
+    uint64_t got = 0;
+    Code full = bases[1];
+    m2.set_threshold(pooled_sim(full, bases[1]));
+    assert(pooled_sim(full, bases[1]) ==
+           static_cast<int32_t>(K_PER_PLANE << 1));
+    assert(m2.recall_pooled(full, got) && got == 12ull);
+    Code clip2;
+    clip2.pos = bases[1].pos;
+    clip2.neg = bases[1].neg;
+    for (unsigned i = 1344u; i < 2048u; ++i) {
+        clip2.pos.clear(i);
+        clip2.neg.clear(i);
+    }
+    int32_t s_clip =
+        pooled_sim(clip2, bases[1]);
+    assert(s_clip ==
+           40 - sim_chunk(bases[1], bases[1], 21, 32));
+    m2.set_threshold(s_clip);
+    assert(m2.recall_pooled(clip2, got) && got == 12ull);
+    Code view2;
+    for (unsigned i = 1344u; i < 2048u; ++i) {
+        if (bases[1].pos.test(i)) view2.pos.set(i);
+        if (bases[1].neg.test(i)) view2.neg.set(i);
+    }
+    int32_t s_view = pooled_sim(view2, bases[1]);
+    assert(s_view == sim_chunk(bases[1], bases[1], 21, 32));
+    assert(s_view > 0);
+    m2.set_threshold(s_view);
+    assert(m2.recall_pooled(view2, got) && got == 12ull);
+    Code blank;
+    m2.set_threshold(24);
+    assert(!m2.recall_pooled(blank, got));
+    printf("chunk isolation: word-aligned views + per-chunk clamp: OK\n");
 }
 
 struct RScore {
@@ -339,6 +488,7 @@ int main() {
     test_sim();
     test_bind_unbind_roundtrip();
     test_bdd_memory();
+    test_chunk_isolation();
     test_router();
     test_grid_clock();
     test_cerebellum();

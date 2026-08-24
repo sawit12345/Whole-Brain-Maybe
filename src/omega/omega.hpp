@@ -12,14 +12,25 @@ static constexpr unsigned N_WORDS = N_BITS >> 6;
 static constexpr unsigned INPUT_BITS_LOG2 = 12;
 static constexpr unsigned EXP_BITS_LOG2 = 13;
 
+static constexpr unsigned CHUNK_COUNT = 3;
+static constexpr unsigned CHUNK_WORD_OFF[CHUNK_COUNT + 1] = {0, 10, 21, 32};
+inline unsigned chunk_word_begin(unsigned t) { return CHUNK_WORD_OFF[t]; }
+inline unsigned chunk_word_end(unsigned t) { return CHUNK_WORD_OFF[t + 1u]; }
+
 struct Code {
     BitVec pos{N_BITS};
     BitVec neg{N_BITS};
 };
 
 uint32_t sim(const Code& a, const Code& b);
+int32_t sim_chunk(const Code& a, const Code& b, unsigned word_begin,
+                  unsigned word_end);
+int32_t pooled_sim(const Code& q, const Code& base);
 bool invariant_ok(const Code& c);
 uint64_t mix_streams(uint64_t stream_id, uint64_t tag);
+inline uint64_t item_seed(uint64_t stream_id) {
+    return mix_streams(stream_id, 0x1D5EED51D5EED5B7ull);
+}
 inline uint64_t branch_seed(uint64_t stream_id, unsigned t) {
     return mix_streams((stream_id << 1) + stream_id + t,
                        0x5BD1E9955BD1E995ull);
@@ -30,11 +41,13 @@ Code unbind(const Code& y, const Code& role);
 
 struct BddMemory {
     static constexpr unsigned BRANCHES = 3;
-    static constexpr int32_t DEFAULT_THRESHOLD =
-        K_PER_PLANE + K_PER_PLANE + K_PER_PLANE;
+    static constexpr int32_t DEFAULT_THRESHOLD = (K_PER_PLANE << 1) - 16;
     explicit BddMemory(unsigned capacity_slots);
     bool store(uint64_t stream_id);
     bool recall(const Code& q, uint64_t& out_stream);
+    bool recall_pooled(const Code& q, uint64_t& out_stream);
+    bool recall_legacy(const Code& q, uint64_t& out_stream,
+                       int32_t legacy_threshold);
     void strengthen(uint64_t stream_id);
     void decay_all();
     void set_threshold(int32_t t) { threshold_ = t; }
@@ -54,6 +67,7 @@ private:
         uint64_t stream = 0;
         bool used = false;
         uint8_t conf_bits[BRANCHES] = {};
+        Code base;
         Code branch[BRANCHES];
     };
     static uint8_t inc2(uint8_t c) {

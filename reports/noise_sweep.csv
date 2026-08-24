@@ -1,0 +1,36 @@
+# OmegaDR-BDD(chunked-pooled) vs SDR baseline noise sweep; M=200 stored items; 100000 trials/point; fresh seeded xorshift Rng per point
+# hit = correct item is argmax similarity AND sim >= threshold; omega_pooled_threshold=16 sdr_threshold=13 (calibrated at f=0.2, max mean F1 over channels, fixed for whole sweep); legacy_threshold=24 (fixed)
+# CHUNKED redesign: one base code per item, m=3 word-aligned chunk views (640/704/704 bits = 10/11/11 words); pooled score = sum over chunks of max(0, signed chunk sim)
+# omega query = corrupted copy of the stored base code; legacy query = corrupted copy of one independently-seeded branch (uniform); SDR channels per SPEC (mixed50/flip analogs)
+# ASSOCIATIVE RECALL under query corruption; channels applied to retrieval query, stored data intact
+channel,f,sdr_hit_rate,omega_hit_rate,omega_legacy_hit_rate
+erasure,0.05,1.00000,1.00000,1.00000
+erasure,0.10,1.00000,1.00000,1.00000
+erasure,0.15,1.00000,1.00000,0.99995
+erasure,0.20,1.00000,1.00000,0.99808
+erasure,0.25,1.00000,1.00000,0.98392
+erasure,0.30,1.00000,0.99997,0.92645
+erasure,0.35,1.00000,0.99965,0.78407
+erasure,0.40,0.99984,0.99654,0.56124
+erasure,0.45,0.99880,0.98090,0.32282
+erasure,0.50,0.99161,0.92320,0.14070
+mixed50,0.05,1.00000,1.00000,0.99999
+mixed50,0.10,1.00000,1.00000,0.99721
+mixed50,0.15,1.00000,0.99980,0.96716
+mixed50,0.20,1.00000,0.99735,0.85481
+mixed50,0.25,1.00000,0.97892,0.63603
+mixed50,0.30,1.00000,0.91601,0.38969
+mixed50,0.35,0.99999,0.76917,0.18353
+mixed50,0.40,0.99988,0.55332,0.06799
+mixed50,0.45,0.99875,0.32579,0.02097
+mixed50,0.50,0.99144,0.15037,0.00426
+flip,0.05,1.00000,1.00000,0.99956
+flip,0.10,1.00000,0.99989,0.97523
+flip,0.15,1.00000,0.99595,0.83241
+flip,0.20,1.00000,0.95893,0.55527
+flip,0.25,1.00000,0.82718,0.27410
+flip,0.30,1.00000,0.58307,0.10193
+flip,0.35,0.99999,0.32211,0.02730
+flip,0.40,0.99986,0.13577,0.00623
+flip,0.45,0.99919,0.04158,0.00080
+flip,0.50,0.99343,0.00860,0.00007

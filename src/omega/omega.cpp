@@ -32,6 +32,11 @@ bool invariant_ok(const Code& c) {
 }
 
 uint32_t sim(const Code& a, const Code& b) {
+    return static_cast<uint32_t>(sim_chunk(a, b, 0, N_WORDS));
+}
+
+int32_t sim_chunk(const Code& a, const Code& b, unsigned word_begin,
+                  unsigned word_end) {
     const uint64_t* ap = a.pos.data();
     const uint64_t* an = a.neg.data();
     const uint64_t* bp = b.pos.data();
@@ -40,13 +45,22 @@ uint32_t sim(const Code& a, const Code& b) {
     uint32_t nn = 0;
     uint32_t pn = 0;
     uint32_t np = 0;
-    for (unsigned j = 0; j < N_WORDS; ++j) {
+    for (unsigned j = word_begin; j < word_end; ++j) {
         pp += pop_word(ap[j] & bp[j]);
         nn += pop_word(an[j] & bn[j]);
         pn += pop_word(ap[j] & bn[j]);
         np += pop_word(an[j] & bp[j]);
     }
-    return static_cast<uint32_t>(static_cast<int32_t>(pp + nn - pn - np));
+    return static_cast<int32_t>(pp + nn - pn - np);
+}
+
+int32_t pooled_sim(const Code& q, const Code& base) {
+    int32_t total = 0;
+    for (unsigned t = 0; t < CHUNK_COUNT; ++t) {
+        int32_t v = sim_chunk(q, base, chunk_word_begin(t), chunk_word_end(t));
+        total += (v > 0) ? v : 0;
+    }
+    return total;
 }
 
 static void pick_subset(Rng& rng, BitVec& out, const BitVec* avoid) {
@@ -121,6 +135,8 @@ bool BddMemory::store(uint64_t stream_id) {
         if (s.used) continue;
         s.used = true;
         s.stream = stream_id;
+        Rng base_rng(item_seed(stream_id));
+        s.base = encode(stream_id, base_rng);
         for (unsigned t = 0; t < BRANCHES; ++t) {
             Rng branch_rng(branch_seed(stream_id, t));
             s.branch[t] = encode(stream_id, branch_rng);
@@ -132,7 +148,34 @@ bool BddMemory::store(uint64_t stream_id) {
 }
 
 bool BddMemory::recall(const Code& q, uint64_t& out_stream) {
+    return recall_pooled(q, out_stream);
+}
+
+bool BddMemory::recall_pooled(const Code& q, uint64_t& out_stream) {
     ++recalls_;
+    bool found = false;
+    int32_t best = 0;
+    uint64_t best_stream = 0;
+    for (const Slot& s : slots_) {
+        if (!s.used) continue;
+        int32_t total = pooled_sim(q, s.base);
+        if (!found || total > best) {
+            found = true;
+            best = total;
+            best_stream = s.stream;
+        }
+    }
+    if (found && best >= threshold_) {
+        out_stream = best_stream;
+        ++hits_;
+        return true;
+    }
+    ++misses_;
+    return false;
+}
+
+bool BddMemory::recall_legacy(const Code& q, uint64_t& out_stream,
+                              int32_t legacy_threshold) {
     bool found = false;
     int32_t best = 0;
     uint64_t best_stream = 0;
@@ -147,12 +190,10 @@ bool BddMemory::recall(const Code& q, uint64_t& out_stream) {
             best_stream = s.stream;
         }
     }
-    if (found && best >= threshold_) {
+    if (found && best >= legacy_threshold) {
         out_stream = best_stream;
-        ++hits_;
         return true;
     }
-    ++misses_;
     return false;
 }
 

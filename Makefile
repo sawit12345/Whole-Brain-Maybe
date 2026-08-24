@@ -7,15 +7,19 @@ OBJS  := $(BUILD)/bitvec.o $(BUILD)/sdr.o
 
 .PHONY: all test bench clean
 
-all: $(BUILD)/test_common $(BUILD)/test_sdr $(BUILD)/bench_sdr $(BUILD)/test_omega
+all: $(BUILD)/test_common $(BUILD)/test_sdr $(BUILD)/bench_sdr $(BUILD)/test_omega \
+     $(BUILD)/noise_bench $(BUILD)/capacity_bench
 
 test: all
 	./$(BUILD)/test_common
 	./$(BUILD)/test_sdr
 	./$(BUILD)/test_omega
 
-bench: $(BUILD)/bench_sdr
+bench: $(BUILD)/bench_sdr $(BUILD)/noise_bench $(BUILD)/capacity_bench
+	mkdir -p reports
 	./$(BUILD)/bench_sdr
+	./$(BUILD)/noise_bench
+	./$(BUILD)/capacity_bench
 
 clean:
 	rm -rf $(BUILD)
@@ -43,3 +47,13 @@ $(BUILD)/bench_sdr: bench/bench_sdr.cpp $(BUILD)/sdr.o $(BUILD)/bitvec.o
 
 $(BUILD)/test_omega: tests/test_omega.cpp $(BUILD)/omega.o $(BUILD)/bitvec.o
 	$(CXX) $(CXXFLAGS) $< $(BUILD)/omega.o $(BUILD)/bitvec.o -o $@
+
+$(BUILD)/noise_bench: bench/noise_bench.cpp $(BUILD)/omega.o $(BUILD)/sdr.o \
+                      $(BUILD)/bitvec.o src/omega/omega.hpp \
+                      src/sdr_baseline/sdr.hpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) $< $(BUILD)/omega.o $(BUILD)/sdr.o $(BUILD)/bitvec.o -o $@
+
+$(BUILD)/capacity_bench: bench/capacity_bench.cpp $(BUILD)/omega.o $(BUILD)/sdr.o \
+                         $(BUILD)/bitvec.o src/omega/omega.hpp \
+                         src/sdr_baseline/sdr.hpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) $< $(BUILD)/omega.o $(BUILD)/sdr.o $(BUILD)/bitvec.o -o $@

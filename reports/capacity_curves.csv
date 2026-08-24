@@ -1,0 +1,12 @@
+# ASSOCIATIVE MEMORY recall capacity curves (NOT representational state-space capacity; 10^95.51 vs 10^84.38 is an analytic result measured nowhere here)
+# clean-copy queries (base code per item); hit = correct item is argmax similarity AND sim >= threshold; 10000 trials per M
+# omega_pooled_threshold=16 sdr_threshold=13 calibrated once at M=100 (max F1 on clean queries)
+M,sdr_hit_rate,omega_pooled_hit_rate
+10,1.00000,1.00000
+25,1.00000,1.00000
+50,1.00000,1.00000
+100,1.00000,1.00000
+200,1.00000,1.00000
+400,1.00000,1.00000
+800,1.00000,1.00000
+1600,1.00000,1.00000

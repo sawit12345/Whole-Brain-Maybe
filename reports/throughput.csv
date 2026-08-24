@@ -1,0 +1,4 @@
+system,items,recalls,mean_ns_per_op
+omega_pooled_recall,200,10000,10761.9
+omega_legacy_recall,200,10000,28142.7
+sdr_nearest_decode,200,10000,8393.0
