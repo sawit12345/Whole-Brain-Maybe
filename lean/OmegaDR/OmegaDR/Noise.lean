@@ -44,7 +44,9 @@ theorem winSum_split (g : Nat → Nat) (a d len : Nat) :
   | succ d ih =>
       have ha : a + 1 + d = a + (d + 1) := by omega
       calc winSum g a ((d + 1) + len)
-          = g a + winSum g (a + 1) (d + len) := winSum_succ g a (d + len)
+          = winSum g a (d + (len + 1)) :=
+              congrArg (winSum g a) (by omega)
+        _ = g a + winSum g (a + 1) (d + len) := winSum_succ g a (d + len)
         _ = g a + (winSum g (a + 1) d + winSum g (a + 1 + d) len) := by rw [ih (a + 1)]
         _ = g a + winSum g (a + 1) d + winSum g (a + (d + 1)) len := by
               rw [ha]
