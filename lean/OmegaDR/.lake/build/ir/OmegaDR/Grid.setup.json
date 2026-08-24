@@ -1,0 +1,11 @@
+{"plugins": [],
+ "package": "OmegaDR",
+ "options": {},
+ "name": "OmegaDR.Grid",
+ "isModule": false,
+ "importArts":
+ {"OmegaDR.Binding":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Binding.olean"]],
+  "OmegaDR.Basic":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Basic.olean"]]},
+ "dynlibs": []}

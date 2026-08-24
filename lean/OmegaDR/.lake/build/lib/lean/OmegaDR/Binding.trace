@@ -1,0 +1,32 @@
+{"synthetic": false,
+ "schemaVersion": "2025-09-10",
+ "outputs":
+ {"o": ["374a63fc1c0ac753.olean"],
+  "m": false,
+  "i": "e69c8e18d905678d.ilean",
+  "c": "1b1b68c35878eb85.c"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/OmegaDR/Binding.lean -o /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Binding.olean -i /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Binding.ilean -c /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/ir/OmegaDR/Binding.c --setup /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/ir/OmegaDR/Binding.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["deps",
+   [["OmegaDR/OmegaDR:extraDep", [["@OmegaDR:extraDep", "00000000000006bb"]]],
+    ["imports",
+     [["OmegaDR.Basic transitive imports (legacy)", "00000000000006bb"],
+      ["OmegaDR.Basic:importAllArts", "07d6725ad90b0bc3"]]]]],
+  ["libs",
+   [["import dynlibs", "00000000000006bb"],
+    ["package external libraries", "00000000000006bb"],
+    ["module dynlibs", "00000000000006bb"],
+    ["module plugins", "00000000000006bb"]]],
+  ["Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
+   "0051240b7c23c453"],
+  ["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/OmegaDR/Binding.lean",
+   "bf90665325380bf3"],
+  ["options", "00000000000006bb"],
+  ["isModule: false", "feefd2a0d3a1847e"],
+  ["Module.name: OmegaDR.Binding", "a68889a5e24edb16"],
+  ["Package.id?: (some OmegaDR)", "95e5890a7edca914"],
+  ["Module.leanArgs: #[]", "00000000000006bb"]],
+ "depHash": "186686ba61766733"}
