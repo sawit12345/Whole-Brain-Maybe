@@ -1,0 +1,1 @@
+{"decls":{},"directImports":[],"module":"OmegaDR.Basic","references":{"{\"c\":{\"m\":\"Init.Prelude\",\"n\":\"rfl\"}}":{"definition":null,"usages":[[2,23,2,26,"OmegaDR._example"]]},"{\"c\":{\"m\":\"OmegaDR.Basic\",\"n\":\"OmegaDR._example\"}}":{"definition":[2,0,2,7],"usages":[]}},"version":5}

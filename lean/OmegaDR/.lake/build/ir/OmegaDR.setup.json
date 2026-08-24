@@ -1,0 +1,9 @@
+{"plugins": [],
+ "package": "OmegaDR",
+ "options": {},
+ "name": "OmegaDR",
+ "isModule": false,
+ "importArts":
+ {"OmegaDR.Basic":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Basic.olean"]]},
+ "dynlibs": []}
