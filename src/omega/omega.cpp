@@ -219,7 +219,9 @@ unsigned Router::route(const Code& x, unsigned* out_area,
         uint32_t s = pop_word(masks_[i] & probe);
         if (cnt == k_) {
             if (!(s > out_score[0])) continue;
-            for (unsigned t = 0; t + 1u < cnt; ++t) {
+            unsigned m = 0;
+            while (m + 1u < cnt && out_score[m + 1u] == out_score[0]) ++m;
+            for (unsigned t = m; t + 1u < cnt; ++t) {
                 out_score[t] = out_score[t + 1u];
                 out_area[t] = out_area[t + 1u];
             }
@@ -263,31 +265,44 @@ bool GridClock::phase(unsigned which) const { return phase_[which]; }
 
 Cerebellum::Cerebellum()
     : hashes_(static_cast<size_t>(EXP_BITS) << 6, 0), w_(EXP_BITS, 0) {
+    static constexpr uint64_t FANIN_MASK = (1ull << INPUT_BITS_LOG2) - 1ull;
     for (unsigned j = 0; j < EXP_BITS; ++j) {
         uint64_t st = mix_streams(j, 0xA5A5A5A5A5A5A5A5ull);
         size_t base = static_cast<size_t>(j) << 6;
-        for (unsigned t = 0; t < HASH_WORDS; ++t) {
+        uint64_t row[HASH_WORDS] = {};
+        unsigned placed = 0;
+        while (placed < GRANULE_FANIN) {
             st ^= st << 13;
             st ^= st >> 7;
             st ^= st << 17;
-            hashes_[base + t] = st;
+            unsigned b = static_cast<unsigned>(st & FANIN_MASK);
+            uint64_t bit = 1ull << (b & 63u);
+            uint64_t* slot = row + (b >> 6);
+            if ((*slot & bit) != 0ull) continue;
+            *slot |= bit;
+            ++placed;
         }
+        for (unsigned t = 0; t < HASH_WORDS; ++t)
+            hashes_[base + t] = row[t];
     }
 }
 
 void Cerebellum::recode(const Code& in, BitVec& out) const {
     assert(out.size() == EXP_BITS);
     out.zero();
-    const uint64_t* pin = in.pos.data();
-    const uint64_t* nine = in.neg.data();
+    uint64_t comb[N_WORDS + N_WORDS];
+    const uint64_t* pp = in.pos.data();
+    const uint64_t* pn = in.neg.data();
+    for (unsigned t = 0; t < N_WORDS; ++t) {
+        comb[t] = pp[t];
+        comb[N_WORDS + t] = pn[t];
+    }
     const uint64_t* base = hashes_.data();
     for (unsigned j = 0; j < EXP_BITS; ++j) {
         const uint64_t* row = base + (static_cast<size_t>(j) << 6);
         uint64_t acc = 0;
-        for (unsigned t = 0; t < HASH_WORDS && acc == 0ull; ++t) {
-            acc |= row[t] & pin[t];
-            acc |= row[t] & nine[t];
-        }
+        for (unsigned t = 0; t < HASH_WORDS && acc == 0ull; ++t)
+            acc |= row[t] & comb[t];
         if (acc != 0ull) out.set(j);
     }
 }

@@ -219,7 +219,7 @@ static void test_cerebellum() {
     BitVec ex2(Cerebellum::EXP_BITS);
     cb.recode(pats[0], ex);
     unsigned dens = ex.popcount();
-    assert(dens > 1024u && dens < Cerebellum::EXP_BITS - 1024u);
+    assert(dens > 256u && dens < Cerebellum::EXP_BITS - 256u);
     cb.recode(pats[0], ex2);
     assert((ex ^ ex2).popcount() == 0u);
 

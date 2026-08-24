@@ -9,6 +9,8 @@ namespace omega {
 static constexpr unsigned N_BITS = 2048;
 static constexpr unsigned K_PER_PLANE = 20;
 static constexpr unsigned N_WORDS = N_BITS >> 6;
+static constexpr unsigned INPUT_BITS_LOG2 = 12;
+static constexpr unsigned EXP_BITS_LOG2 = 13;
 
 struct Code {
     BitVec pos{N_BITS};
@@ -96,7 +98,8 @@ private:
 
 struct Cerebellum {
     static constexpr unsigned EXP_BITS = 8192;
-    static constexpr unsigned HASH_WORDS = N_WORDS;
+    static constexpr unsigned HASH_WORDS = N_WORDS + N_WORDS;
+    static constexpr unsigned GRANULE_FANIN = 12;
     Cerebellum();
     void recode(const Code& in, BitVec& out) const;
     int predict(const Code& in) const;
