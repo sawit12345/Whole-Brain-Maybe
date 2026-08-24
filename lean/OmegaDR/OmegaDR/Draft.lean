@@ -43,16 +43,19 @@ operation serves as role-filler binding in either argument order. -/
 theorem bind_comm (r f : BitVec w) : bind r f = bind f r := BitVec.xor_comm r f
 
 /-- **Identity**: binding with the zero vector is the identity on fillers. -/
-theorem bind_id_left (f : BitVec w) : bind 0#w f = f := BitVec.zero_xor f
+theorem bind_id_left (f : BitVec w) : bind 0#w f = f := by
+  simp [bind]
 
-theorem bind_id_right (r : BitVec w) : bind r 0#w = r := BitVec.xor_zero r
+theorem bind_id_right (r : BitVec w) : bind r 0#w = r := by
+  simp [bind]
 
 /-- **Inverse**: every element is its own inverse; unbinding recovers the filler. -/
 theorem unbind_bind (r f : BitVec w) : bind r (bind r f) = f := by
-  simp [bind, BitVec.xor_assoc, BitVec.xor_self, BitVec.zero_xor]
+  rw [bind, bind, ← BitVec.xor_assoc, BitVec.xor_self, BitVec.zero_xor]
 
+/-- Unbinding with swapped argument order also recovers the filler. -/
 theorem bind_unbind (r f : BitVec w) : bind r (bind f r) = f := by
-  rw [bind_comm, unbind_bind]
+  rw [bind, bind, BitVec.xor_comm f r, ← BitVec.xor_assoc, BitVec.xor_self, BitVec.zero_xor]
 
 /-- Left cancellation (consequence of inverses). -/
 theorem bind_cancel_left (c a b : BitVec w) : bind c a = bind c b ↔ a = b := by
@@ -66,8 +69,8 @@ theorem xor_group_laws (w : Nat) :
     (∀ x : BitVec w, x ^^^ x = 0#w) ∧
     (∀ x y : BitVec w, x ^^^ y = y ^^^ x) :=
   ⟨fun x y z => BitVec.xor_assoc x y z,
-   fun x => ⟨BitVec.zero_xor x, BitVec.xor_zero x⟩,
-   fun x => BitVec.xor_self x,
+   fun x => ⟨BitVec.zero_xor (x := x), BitVec.xor_zero (x := x)⟩,
+   fun x => BitVec.xor_self (x := x),
    fun x y => BitVec.xor_comm x y⟩
 
 /- ### S5.2 Permutation-binding compatibility -/
@@ -76,8 +79,11 @@ theorem xor_group_laws (w : Nat) :
 This is the algebraic reason sparse-permutation bindings can be reordered freely. -/
 theorem rotateRight_xor_distrib (x y : BitVec w) (k : Nat) :
     (x ^^^ y).rotateRight k = x.rotateRight k ^^^ y.rotateRight k := by
-  ext i
-  simp [BitVec.getLsbD_rotateRight, BitVec.getLsbD_xor]
+  ext i hi
+  rw [BitVec.getElem_xor]
+  rw [BitVec.getElem_rotateRight hi, BitVec.getElem_rotateRight hi,
+    BitVec.getElem_rotateRight hi]
+  split <;> simp_all [BitVec.getElem_xor]
 
 /-- Permutation binding is a homomorphism of the XOR binding algebra. -/
 theorem permBind_distrib (k : Nat) (r f : BitVec w) :
@@ -113,6 +119,10 @@ def Allowed : OpKind → Prop
   | .cmp => True
   | .add => True
 
+/-- Every opcode of the fixed ISA lies in the whitelist. -/
+theorem opcode_allowed (k : OpKind) : Allowed k := by
+  cases k <;> exact trivial
+
 /-- A kernel instruction: opcode, destination register, source registers, immediate. -/
 structure Instr (w : Nat) where
   kind : OpKind
@@ -140,18 +150,19 @@ def step {w : Nat} (ρ : RegFile w) (i : Instr w) : BitVec w :=
   | .add    => ρ i.rs1 + ρ i.rs2
 
 /-- Every instruction carries an allowed opcode. -/
-theorem instr_allowed (i : Instr w) : Allowed i.kind := by
-  cases i.kind <;> exact trivial
+theorem instr_allowed (i : Instr w) : Allowed i.kind :=
+  opcode_allowed i.kind
 
 /-- Unrestricted programs. -/
 abbrev Prog (w : Nat) := List (Instr w)
 
 /-- Every instruction appearing in any program list is allowed. -/
-theorem prog_allowed (p : Prog w) : ∀ i ∈ p, Allowed i.kind := by
-  intro i hi
-  induction hi with
-  | head _ _ => exact instr_allowed _
-  | tail _ _ ih => exact ih
+theorem prog_allowed : ∀ (p : Prog w) (i : Instr w), i ∈ p → Allowed i.kind
+  | [], _, h => absurd h (by simp)
+  | j :: p', i, h => by
+      rcases List.mem_cons.mp h with rfl | hm
+      · exact instr_allowed i
+      · exact prog_allowed p' i hm
 
 /-- Well-formed kernel program: instructions may only be consed on **with a proof**
 that their opcode is allowed. This is the static gate of the multiply-free discipline. -/
@@ -167,18 +178,19 @@ def Mem (i : Instr w) : KernelProgram w → Prop
   | .nil => False
   | .cons j _ p => i = j ∨ Mem i p
 
-instance : Membership (Instr w) (KernelProgram w) := ⟨fun i p => Mem i p⟩
+@[reducible]
+instance : Membership (Instr w) (KernelProgram w) := ⟨fun p i => Mem i p⟩
 
 /-- **T5 (charter).** Every instruction of a well-formed kernel program carries an
 allowed (multiply-free) opcode. -/
-theorem allowed_of_mem : ∀ (p : KernelProgram w) (i : Instr w), i ∈ p → Allowed i.kind
+theorem allowed_of_mem' :
+    ∀ (p : KernelProgram w) (i : Instr w), Mem i p → Allowed i.kind
   | .cons _ hp _, _, Or.inl rfl => hp
-  | .cons _ _ p, i, Or.inr h => allowed_of_mem p i h
+  | .cons _ _ p, i, Or.inr h => allowed_of_mem' p i h
 
-/-- The gate is non-vacuous: any instruction at all can be admitted,
-because every opcode is allowed. -/
-theorem cons_always_wellformed (i : Instr w) (p : KernelProgram w) :
-    ∃ p', KernelProgram.cons i (instr_allowed i) p = p' := ⟨_, rfl⟩
+theorem allowed_of_mem (p : KernelProgram w) (i : Instr w) (h : i ∈ p) :
+    Allowed i.kind :=
+  allowed_of_mem' p i h
 
 end KernelProgram
 
@@ -224,7 +236,7 @@ theorem joint_period_product {p q r : Nat}
 /-- The ΩDR grid periods are pairwise coprime (computed by `decide`). -/
 theorem grid_periods_pairwise_coprime :
     Nat.Coprime 61 127 ∧ Nat.Coprime 127 251 ∧ Nat.Coprime 61 251 :=
-  ⟨⟨by decide, by decide⟩, by decide, by decide⟩
+  ⟨by decide, by decide, by decide⟩
 
 /-- Composite cycle length: `61 * 127 * 251 = 1944497`. -/
 theorem grid_cycle_length : 61 * 127 * 251 = 1944497 := by decide
