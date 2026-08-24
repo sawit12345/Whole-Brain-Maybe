@@ -1,20 +1,150 @@
 {"synthetic": false,
  "schemaVersion": "2025-09-10",
  "outputs":
- {"o": ["221f5939880eb361.olean"],
+ {"o": ["d1f6b55863c8289d.olean"],
   "m": false,
-  "i": "60d8e7244317c661.ilean",
-  "c": "97515cab9976e984.c"},
+  "i": "49006cdca319f224.ilean",
+  "c": "b1cd3afe6094044c.c"},
  "log":
  [{"message":
    ".> LEAN_PATH=/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean /home/runner/.elan/toolchains/leanprover--lean4---v4.33.1/bin/lean /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/OmegaDR.lean -o /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR.olean -i /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR.ilean -c /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/ir/OmegaDR.c --setup /home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/ir/OmegaDR.setup.json --json",
-   "level": "trace"}],
+   "level": "trace"},
+  {"message":
+   "OmegaDR.lean:19:0: 'OmegaDR.bind_assoc' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:20:0: 'OmegaDR.bind_comm' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:21:0: 'OmegaDR.bind_id_left' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:22:0: 'OmegaDR.bind_id_right' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:23:0: 'OmegaDR.unbind_bind' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:24:0: 'OmegaDR.bind_unbind' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:25:0: 'OmegaDR.bind_cancel_left' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:26:0: 'OmegaDR.xor_group_laws' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:27:0: 'OmegaDR.rotateRight_xor_distrib' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:28:0: 'OmegaDR.permBind_distrib' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:29:0: 'OmegaDR.rotateRight_add' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:30:0: 'OmegaDR.rotateRight_full_cycle' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:33:0: 'OmegaDR.opcode_allowed' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:34:0: 'OmegaDR.instr_allowed' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:35:0: 'OmegaDR.prog_allowed' depends on axioms: [propext]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:36:0: 'OmegaDR.KernelProgram.allowed_of_mem'' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:37:0: 'OmegaDR.KernelProgram.allowed_of_mem' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:40:0: 'OmegaDR.joint_period_product' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:41:0: 'OmegaDR.grid_periods_pairwise_coprime' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:42:0: 'OmegaDR.grid_cycle_length' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:43:0: 'OmegaDR.grid_clock_joint_period' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:44:0: 'OmegaDR.grid_clock_full_rotation' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:45:0: 'OmegaDR.grid_clock_rotation_composition' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:48:0: 'OmegaDR.choose_zero_right' depends on axioms: [propext]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:49:0: 'OmegaDR.choose_zero_succ' depends on axioms: [propext]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:50:0: 'OmegaDR.choose_succ_succ' depends on axioms: [propext]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:51:0: 'OmegaDR.choose_out_of_range' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:52:0: 'OmegaDR.choose_pos' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:53:0: 'OmegaDR.choose_self' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:54:0: 'OmegaDR.mul_succ_choose_eq' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:55:0: 'OmegaDR.choose_mono' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:56:0: 'OmegaDR.sigma_card_pos' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:57:0: 'OmegaDR.choose_bound_omega' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:58:0: 'OmegaDR.choose_64_8' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:59:0: 'OmegaDR.sigma_card_64_8' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:60:0: 'OmegaDR.omega_capacity' does not depend on any axioms",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:63:0: 'OmegaDR.winSum_split' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:64:0: 'OmegaDR.successMass_antitone_theta' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:65:0: 'OmegaDR.survive_mono_erasure' depends on axioms: [propext, Quot.sound]",
+   "level": "info"},
+  {"message":
+   "OmegaDR.lean:66:0: 'OmegaDR.retrieval_success' depends on axioms: [sorryAx]",
+   "level": "info"}],
  "inputs":
  [["deps",
    [["OmegaDR/OmegaDR:extraDep", [["@OmegaDR:extraDep", "00000000000006bb"]]],
     ["imports",
      [["OmegaDR.Basic transitive imports (legacy)", "00000000000006bb"],
-      ["OmegaDR.Basic:importAllArts", "07d6725ad90b0bc3"]]]]],
+      ["OmegaDR.Basic:importAllArts", "07d6725ad90b0bc3"],
+      ["OmegaDR.Binding transitive imports (legacy)", "1bbf4c8bc4340eba"],
+      ["OmegaDR.Binding:importAllArts", "b33efff0ed876524"],
+      ["OmegaDR.ISA transitive imports (legacy)", "1bbf4c8bc4340eba"],
+      ["OmegaDR.ISA:importAllArts", "608a1fc8d769e190"],
+      ["OmegaDR.Grid transitive imports (legacy)", "dd4c30a7fe811962"],
+      ["OmegaDR.Grid:importAllArts", "cd7082dea9c5902c"],
+      ["OmegaDR.Capacity transitive imports (legacy)", "1bbf4c8bc4340eba"],
+      ["OmegaDR.Capacity:importAllArts", "61a018a26413b65e"],
+      ["OmegaDR.Noise transitive imports (legacy)", "1bbf4c8bc4340eba"],
+      ["OmegaDR.Noise:importAllArts", "001300d26b92bfdf"]]]]],
   ["libs",
    [["import dynlibs", "00000000000006bb"],
     ["package external libraries", "00000000000006bb"],
@@ -23,10 +153,10 @@
   ["Lean 4.33.1, commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
    "0051240b7c23c453"],
   ["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/OmegaDR.lean",
-   "75dc872cb57fbcb2"],
+   "d0704331575788a0"],
   ["options", "00000000000006bb"],
   ["isModule: false", "feefd2a0d3a1847e"],
   ["Module.name: OmegaDR", "9955f3daa61a782d"],
   ["Package.id?: (some OmegaDR)", "95e5890a7edca914"],
   ["Module.leanArgs: #[]", "00000000000006bb"]],
- "depHash": "c0606ffd2898c288"}
+ "depHash": "933503007f0f5241"}

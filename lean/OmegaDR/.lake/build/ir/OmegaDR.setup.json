@@ -4,6 +4,16 @@
  "name": "OmegaDR",
  "isModule": false,
  "importArts":
- {"OmegaDR.Basic":
+ {"OmegaDR.Noise":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Noise.olean"]],
+  "OmegaDR.ISA":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/ISA.olean"]],
+  "OmegaDR.Grid":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Grid.olean"]],
+  "OmegaDR.Capacity":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Capacity.olean"]],
+  "OmegaDR.Binding":
+  [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Binding.olean"]],
+  "OmegaDR.Basic":
   [["/home/runner/repos/Whole-Brain-Maybe/lean/OmegaDR/.lake/build/lib/lean/OmegaDR/Basic.olean"]]},
  "dynlibs": []}

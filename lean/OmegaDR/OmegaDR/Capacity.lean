@@ -94,7 +94,7 @@ theorem mul_succ_choose_eq (n k : Nat) :
             have hs0 : (m + 1) - (j + 1) = 0 := by omega
             rw [choose_succ_succ, choose_succ_succ, e3, e2, Nat.add_zero,
                 Nat.add_zero, hs0, Nat.mul_zero]
-            rfl
+            exact Nat.zero_mul _
           · have hsub : (m + 1) - (j + 1) = m - j := by omega
             rw [hsub, choose_succ_succ, choose_succ_succ]
             have h1 := ih j
@@ -125,8 +125,8 @@ theorem choose_mono {n k : Nat} (h : 2 * k + 1 ≤ n) : choose n k ≤ choose n 
         Nat.mul_le_mul_left _ hk
     _ = choose n (k + 1) * (k + 1) := hEq.symm
 
-/-- Σ(n,k) is positive whenever both planes fit (`k + 1 ≤ n`). -/
-theorem sigma_card_pos {n k : Nat} (h : k + 1 ≤ n) : 0 < SigmaCard n k := by
+/-- Σ(n,k) is positive whenever both planes fit (`2*k < n`). -/
+theorem sigma_card_pos {n k : Nat} (h : 2 * k + 1 ≤ n) : 0 < SigmaCard n k := by
   have hle : k ≤ n - k := by omega
   exact Nat.lt_of_lt_of_le (choose_pos (by omega))
     (Nat.le_mul_of_pos_right _ (choose_pos hle))
@@ -143,7 +143,8 @@ theorem choose_64_8 : choose 64 8 = 4426165368 := by decide
 
 /-- Concrete digit fact (kernel-decided): Σ(64,8) = C(64,8) · C(56,8)
 = `6,287,341,680,214,194,600`. -/
-theorem sigma_card_64_8 : SigmaCard 64 8 = 6287341680214194600 := by decide
+theorem sigma_card_64_8 : SigmaCard 64 8 = 6287341680214194600 := by
+  set_option maxRecDepth 100000 in decide
 
 /-- **T2 headline (charter).** ΩDR state space at width 2048 with K=20 per plane:
 Σ(2048,20) > 10^95 (SDR baseline single-plane: ~10^84.38).
@@ -151,7 +152,8 @@ theorem sigma_card_64_8 : SigmaCard 64 8 = 6287341680214194600 := by decide
 NEEDS-MATHLIB note: originally expected to require Mathlib's `Nat.choose`;
 in fact core-only kernel computation decides the exact inequality, so this is
 **proved** - the capacity claim no longer rests on a `sorry`. -/
-theorem omega_capacity : SigmaCard 2048 20 > 10 ^ 95 := by decide
+theorem omega_capacity : SigmaCard 2048 20 > 10 ^ 95 := by
+  set_option maxRecDepth 100000 in decide
 
 end Capacity
 

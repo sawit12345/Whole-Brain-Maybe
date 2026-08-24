@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: OmegaDR
-// Imports: public import Init public meta import Init public import OmegaDR.Basic
+// Imports: public import Init public meta import Init public import OmegaDR.Basic public import OmegaDR.Binding public import OmegaDR.ISA public import OmegaDR.Grid public import OmegaDR.Capacity public import OmegaDR.Noise
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,11 @@ extern "C" {
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_Init(uint8_t builtin);
 lean_object* initialize_OmegaDR_OmegaDR_Basic(uint8_t builtin);
+lean_object* initialize_OmegaDR_OmegaDR_Binding(uint8_t builtin);
+lean_object* initialize_OmegaDR_OmegaDR_ISA(uint8_t builtin);
+lean_object* initialize_OmegaDR_OmegaDR_Grid(uint8_t builtin);
+lean_object* initialize_OmegaDR_OmegaDR_Capacity(uint8_t builtin);
+lean_object* initialize_OmegaDR_OmegaDR_Noise(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_OmegaDR_OmegaDR(uint8_t builtin) {
 lean_object * res;
@@ -28,6 +33,21 @@ res = initialize_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_OmegaDR_OmegaDR_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_OmegaDR_OmegaDR_Binding(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_OmegaDR_OmegaDR_ISA(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_OmegaDR_OmegaDR_Grid(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_OmegaDR_OmegaDR_Capacity(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_OmegaDR_OmegaDR_Noise(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
