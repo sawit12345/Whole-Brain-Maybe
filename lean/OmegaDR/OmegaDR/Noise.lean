@@ -42,10 +42,13 @@ theorem winSum_split (g : Nat → Nat) (a d len : Nat) :
   induction d generalizing a with
   | zero => simp [winSum]
   | succ d ih =>
-      have hrw : (d + 1) + len = d + (len + 1) := by omega
       have ha : a + 1 + d = a + (d + 1) := by omega
-      rw [hrw, winSum_succ, ih (a + 1), ha]
-      rw [Nat.add_assoc]
+      calc winSum g a ((d + 1) + len)
+          = g a + winSum g (a + 1) (d + len) := winSum_succ g a (d + len)
+        _ = g a + (winSum g (a + 1) d + winSum g (a + 1 + d) len) := by rw [ih (a + 1)]
+        _ = g a + winSum g (a + 1) d + winSum g (a + (d + 1)) len := by
+              rw [ha]
+              exact (Nat.add_assoc (g a) _ _).symm
 
 /-- Success region: unnormalized probability mass of overlaps clearing θ. -/
 def successMass (g : Nat → Nat) (w θ : Nat) : Nat := winSum g θ (w - θ)
@@ -60,8 +63,8 @@ theorem successMass_antitone_theta {g : Nat → Nat} {w a b : Nat} (hab : a ≤ 
       have hw : w - a = (b - a) + (w - b) := by omega
       rw [hw, winSum_split]
     calc successMass g w b = winSum g b (w - b) := rfl
-      _ = winSum g (a + (b - a)) (w - b) :=
-            congrArg _ (by omega : a + (b - a) = b)
+      _ = winSum g (a + (b - a)) (w - b) := by
+            rw [show a + (b - a) = b from by omega]
       _ ≤ winSum g a (b - a) + winSum g (a + (b - a)) (w - b) := Nat.le_add_left _ _
       _ = winSum g a (w - a) := hsplit.symm
       _ = successMass g w a := rfl
@@ -77,7 +80,7 @@ def survive (K θ e : Nat) : Prop := θ ≤ K - min e K
 /-- Erasure monotonicity: less erasure never breaks survival. -/
 theorem survive_mono_erasure {K θ e₁ e₂ : Nat} (h : e₁ ≤ e₂) (hs : survive K θ e₂) :
     survive K θ e₁ := by
-  refine hs.trans_le ?_
+  refine Nat.le_trans hs ?_
   have hmin : min e₁ K ≤ min e₂ K := by omega
   omega
 
